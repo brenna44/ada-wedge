@@ -1,0 +1,137 @@
+--ada-wedge.wedge2.transArchiv*
+
+SELECT EXTRACT(Year from datetime) as Yr,
+       EXTRACT(Month from datetime) as Mo,
+       count(*)
+FROM `umt-msba.wedge_transactions.transArchive_*` 
+--FROM `your_project.your_dataset.your_table_prefix_*` 
+GROUP BY Yr, Mo
+HAVING Yr = 2012 
+ORDER BY Yr, Mo
+-- January = 1070907 This matches mine
+MY ANSWER: October = 1042287 
+HIS ANSWER: October = 1042287
+
+
+
+
+
+SELECT count(*) as cnt
+FROM `umt-msba.wedge_transactions.transArchive_*` 
+--FROM `your_project.your_dataset.your_table_prefix_*` 
+-- January = ? IT DOEST GIVE ME JANUARY JUST A TOTAL
+MY ANSWER: 85760139
+HIS ANSWER: 85760139
+
+
+ada-wedge.wedge.transArchive*
+SELECT EXTRACT(Month from datetime) as Mo,
+       count(*) as cnt
+FROM `umt-msba.wedge_transactions.transArchive_*` 
+--FROM `your_project.your_dataset.your_table_prefix_*` 
+WHERE EXTRACT(Year from datetime) <= 2016
+GROUP BY Mo
+ORDER BY cnt
+MY ANSWER: January = 7056762 
+HIS ANSWER: 7056762 
+MY ANSWER: October = 7085752 
+HIS ANSWER: 7085752 
+
+SELECT COUNTIF(trans_subtype is NULL) as Null_TS,
+       COUNTIF(datetime is NULL) as Null_DT,
+       COUNTIF(local IS NULL) as Null_Local,
+       COUNTIF(card_no IS NULL) as Null_CN
+FROM `umt-msba.wedge_transactions.transArchive_*`
+--FROM `your_project.your_dataset.your_table_prefix_*` 
+MY ANSWER: Each value Null_TS= 7123792, NULL_DT =0, NULL_LOCAL = 234843 NULL_CN =0
+HIS ANSWER: 7123792,0,234843,0
+
+
+SELECT card_no, 
+       COUNT(*) as cnt
+FROM `umt-msba.wedge_transactions.transArchive_*`
+--FROM `your_project.your_dataset.your_table_prefix_*` 
+WHERE card_no != 3
+GROUP BY card_no
+ORDER BY cnt desc
+LIMIT 10
+-- What card is #5 on the list and how many rows does it have?
+MY ANSWER: The 5th card is 14987 and has a count of 460630
+HIS ANSWER: 5th card is 14987; 460630
+
+
+SELECT card_no, 
+       COUNT(*) as cnt
+FROM `umt-msba.wedge_transactions.transArchive_*`
+--FROM `your_project.your_dataset.your_table_prefix_*` 
+WHERE card_no = 18736
+GROUP BY card_no
+-- How many rows do I have? 
+MY ANSWER: 1 row; card no is 18736; count = 12153
+HIS ANSWER: card no is 18736; count 12153
+
+SELECT LOWER(Description), 
+       COUNT(*) as cnt
+FROM `umt-msba.wedge_transactions.transArchive_*`
+--FROM `your_project.your_dataset.your_table_prefix_*` 
+WHERE trans_type = "I" AND
+      Description != "Discount"
+GROUP BY LOWER(Description)
+ORDER BY cnt desc
+LIMIT 10
+-- Which product is #1? How many rows does it have? 
+-- Which product is #4? How many rows does it have? 
+
+MY ANSWER-banana organic #1; count = 908639
+MY ANSWER-avocado hass organic #4; count = 456771
+
+HIS ANSWER: banana organic count = 908639
+HIS ANSWER: avocado hass organic count =456771
+
+SELECT 
+	COUNT(DISTINCT Description) as SingleRecordItems
+FROM (
+	SELECT LOWER(Description) as Description,
+		   COUNT(*) as cnt
+	FROM `umt-msba.wedge_transactions.transArchive_*`
+	--FROM `your_project.your_dataset.your_table_prefix_*` 
+  WHERE trans_type = "I" AND Description != "Discount"
+	GROUP BY Description
+	HAVING cnt = 1
+	)
+MY ANSWER: 2769
+HIS ANSWER: 2769 
+
+SELECT
+  Y,
+  OwnerRows,
+  NonOwnerRows,
+  ROUND(OwnerRows/(OwnerRows+NonOwnerRows),4) AS OwnerFrac
+FROM (
+  SELECT
+    EXTRACT(Year
+    FROM
+      datetime) AS Y,
+    COUNTIF(card_no != 3) AS OwnerRows,
+    COUNTIF(card_no = 3) AS NonOwnerRows
+  FROM
+    `umt-msba.wedge_transactions.transArchive_*`
+    --`your_project.your_dataset.your_table_prefix_*` 
+  GROUP BY
+    Y)
+ORDER BY
+  Y
+  
+-- Which year has the highest portion of owner rows? What year? What fraction?
+-- Which year has the lowest portion of owner rows? What year? What fraction?
+
+MY ANSWER: 2014; fraction =.7591
+HIS ANSWER: 2014; .7591
+MY ANSWER: 2011; fraction = .7372
+HIS ANSWER: 2011; .7372
+
+
+
+
+
+
